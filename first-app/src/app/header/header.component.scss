@@ -1,0 +1,11 @@
+.header{
+    display: flex;
+    width: 100%;
+    background-color: lightgray;
+    height: 48px;
+    .profileIcon{
+        height: 48px;
+        width:48px;
+        background-color: lightsalmon;
+    }
+}
