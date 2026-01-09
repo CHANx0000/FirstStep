@@ -1,0 +1,17 @@
+<div class="main">
+  <div class="content">
+    <h1>Main Component</h1>
+
+    <div class="input-group">
+      <label for="linkedin-input">My Linkedin Post Inputs</label>
+      <textarea id="linkedin-input" #linkedinInput class="linkedin-input" rows="6" placeholder="Write your LinkedIn post..."></textarea>
+      <button type="button" (click)="submitPost(linkedinInput.value)">Submit</button>
+    </div>
+
+    <div class="output" *ngIf="message">
+      <h3>Submitted message</h3>
+      <p>{{ message }}</p>
+    </div>
+
+  </div>
+</div>
