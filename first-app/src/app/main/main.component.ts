@@ -7,7 +7,7 @@ import Groq from 'groq-sdk';
 // you can set `dangerouslyAllowBrowser: true`. This exposes the key in client bundles
 // and is NOT safe for production or public deployments.
 
-//new commit from new branch
+//new commit from trial branch 2
 
 const groq = new Groq({
   apiKey: '',
