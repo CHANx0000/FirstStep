@@ -6,6 +6,9 @@ import Groq from 'groq-sdk';
 // NOTE: The SDK blocks usage in browser environments by default. For local testing only,
 // you can set `dangerouslyAllowBrowser: true`. This exposes the key in client bundles
 // and is NOT safe for production or public deployments.
+
+//new commit from new branch
+
 const groq = new Groq({
   apiKey: '',
   dangerouslyAllowBrowser: true,
