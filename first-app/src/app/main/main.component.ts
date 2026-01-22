@@ -1,17 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { from, of } from 'rxjs';
+import { tap, catchError, finalize } from 'rxjs/operators';
 import Groq from 'groq-sdk';
+import { environment } from '../../environments/environment';
 
-// WARNING: API key is embedded here for demonstration as requested.
-// Do NOT commit this key to version control; consider using environment variables instead.
-// NOTE: The SDK blocks usage in browser environments by default. For local testing only,
-// you can set `dangerouslyAllowBrowser: true`. This exposes the key in client bundles
-// and is NOT safe for production or public deployments.
-
-//new commit from trial branch 2
-//another comment from new sub trial branch
-
-const groq = new Groq({
-  apiKey: '',
+const client = new Groq({
+  apiKey: environment.groqApiKey,
   dangerouslyAllowBrowser: true,
 });
 
@@ -21,43 +15,54 @@ const groq = new Groq({
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent implements OnInit {
-  ngOnInit(): void {
-    console.log('MainComponent initialized');
-  }
   message: string = '';
   response: string = '';
   loading: boolean = false;
 
-  async submitPost(value: string) {
-    this.message = value;
-    this.response = '';
+  ngOnInit(): void {
+    console.log('MainComponent initialized');
+  }
 
-    if (!value || !value.trim()) {
-      this.response = 'Please enter some text to submit.';
+  submitPost(userMessage: string): void {
+    if (!userMessage || !userMessage.trim()) {
+      this.response = 'Please enter a message';
       return;
     }
 
-    try {
-      this.loading = true;
-      const chatCompletion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: 'user',
-            content: value,
-          },
-        ],
-        model: 'openai/gpt-oss-20b',
-      });
+    this.message = userMessage;
+    this.response = '';
+    this.loading = true;
 
-      this.response =
-        chatCompletion?.choices?.[0]?.message?.content ||
-        'No response from model.';
-    } catch (err: any) {
-      console.error('Groq API error', err);
-      this.response =
-        'Error calling Groq API: ' + (err?.message || String(err));
-    } finally {
-      this.loading = false;
-    }
+    const apiCall$ = from(
+      client.chat.completions.create({
+        model: 'openai/gpt-oss-20b', // Using a valid Groq model
+        messages: [{ role: 'user', content: userMessage }],
+      })
+    );
+
+    apiCall$
+      .pipe(
+        tap(() => console.log('Starting API call...')),
+        tap((result) => {
+          console.log('API response received:', result);
+          
+          if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+            this.response = result.choices[0].message.content || 'No response from model';
+          } else {
+            this.response = 'No response from model';
+          }
+          
+          console.log('Final response:', this.response);
+        }),
+        catchError((error: any) => {
+          console.error('API Error:', error);
+          this.response = 'Error: ' + (error?.message || String(error));
+          return of(null); // Return a safe value to continue the stream
+        }),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe();
   }
 }
